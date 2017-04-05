@@ -2,7 +2,7 @@ PSORG=$PS1;
 PROMPT_COMMAND_ORG=$PROMPT_COMMAND;
 
 if [ -n "${BASH_VERSION}" ]; then
-    DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+    DIR="$( builtin cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
     source ${DIR}/base.sh
 
     : ${omg_ungit_prompt:=$PS1}
@@ -30,6 +30,7 @@ if [ -n "${BASH_VERSION}" ]; then
     : ${omg_default_color_on:='\[\033[1;37m\]'}
     : ${omg_default_color_off:='\[\033[0m\]'}
     : ${omg_last_symbol_color:='\e[0;31m\e[40m'}
+    : ${omg_last_symbol:='$'}
     
     PROMPT='$(build_prompt)'
     RPROMPT='%{$reset_color%}%T %{$fg_bold[white]%} %n@%m%{$reset_color%}'
@@ -128,7 +129,7 @@ if [ -n "${BASH_VERSION}" ]; then
 
             # where
 
-            prompt="${prompt} ${white_on_red} ${black_on_red}"
+            prompt="${prompt} ${white_on_red}${omg_last_symbol}${black_on_red}"
             if [[ $detached == true ]]; then
                 prompt+=$(enrich_append $detached $omg_detached_symbol "${white_on_red}")
                 prompt+=$(enrich_append $detached "(${current_commit_hash:0:7})" "${black_on_red}")
@@ -160,7 +161,7 @@ if [ -n "${BASH_VERSION}" ]; then
                 fi
             fi
             prompt+=$(enrich_append ${is_on_a_tag} "${omg_is_on_a_tag_symbol} ${tag_at_current_commit}" "${black_on_red}")
-            prompt+="${omg_last_symbol_color}${reset}\n"
+            prompt+="${omg_last_symbol_color}${omg_last_symbol}${reset}\n"
             prompt+="$(eval_prompt_callback_if_present)"
             prompt+="${omg_second_line}"
         else
@@ -174,7 +175,9 @@ if [ -n "${BASH_VERSION}" ]; then
     PS2="${yellow}→${reset} "
 
     function bash_prompt() {
+        local ret=$?
         PS1="$(build_prompt)"
+        return $ret
     }
 
     PROMPT_COMMAND="bash_prompt; $PROMPT_COMMAND_ORG"

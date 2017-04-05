@@ -50,9 +50,9 @@ function get_current_action () {
 
 function build_prompt {
     local enabled=`git config --local --get oh-my-git.enabled`
-    if [[ ${enabled} == false ]]; then
+    if [[ ${enabled} == false || ( -n $OMGENABLED && $OMGENABLED -eq 0 )]]; then
         echo "${PSORG}"
-        exit;
+        return;
     fi
 
     local prompt=""
